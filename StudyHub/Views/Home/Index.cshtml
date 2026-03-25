@@ -1,8 +1,459 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model StudyHub.ViewModels.HomeIndexViewModel
+@{
+ViewData["Title"] = "Головна";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+<style>
+    /* HERO */
+    .hero-section {
+        position: relative; padding: 5rem 0 4rem; overflow: hidden;
+        background: var(--gradient-hero);
+    }
+    .hero-section::after {
+        content: ''; position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse 60% 50% at 50% -10%, rgba(255,107,26,0.18) 0%, transparent 70%),
+            radial-gradient(ellipse 40% 40% at 80% 100%, rgba(255,107,26,0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .hero-grid-lines {
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(255,107,26,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,107,26,0.04) 1px, transparent 1px);
+        background-size: 60px 60px; pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,107,26,0.1); border: 1px solid rgba(255,107,26,0.2);
+        border-radius: 50px; padding: 6px 16px; font-size: 0.8rem; font-weight: 600;
+        color: var(--orange-light); letter-spacing: 0.5px; margin-bottom: 1.5rem; text-transform: uppercase;
+    }
+    .hero-title {
+        font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 800; line-height: 1.1;
+        letter-spacing: -1.5px; color: var(--text-primary); margin-bottom: 1.2rem;
+    }
+    .hero-title .accent {
+        background: var(--gradient-orange);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-subtitle { color: var(--text-muted); font-size: 1.05rem; max-width: 480px; margin-bottom: 2rem; line-height: 1.7; }
+    .hero-stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; }
+    .hero-stat-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    .hero-stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+    .hero-stat-sep { width: 1px; height: 40px; background: var(--border-card); align-self: center; }
+
+    /* FLOATING DECO CARD */
+    .hero-deco { position: relative; display: flex; justify-content: center; align-items: center; }
+    .deco-card {
+        background: var(--bg-card2); border: 1px solid var(--border-subtle);
+        border-radius: 18px; padding: 1.5rem;
+        box-shadow: var(--shadow-card), 0 0 60px rgba(255,107,26,0.15);
+        width: 100%; max-width: 340px;
+        animation: floatCard 6s ease-in-out infinite;
+    }
+    @@keyframes floatCard {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-14px); }
+    }
+    .deco-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+    .deco-icon-wrap {
+        width: 38px; height: 38px; background: var(--gradient-orange); border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1rem;
+    }
+    .deco-lines { display: flex; flex-direction: column; gap: 7px; }
+    .deco-line { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.07); }
+    .deco-tags { display: flex; gap: 6px; margin-top: 1rem; }
+    .deco-tag { height: 22px; border-radius: 50px; background: var(--orange-glow); border: 1px solid var(--border-subtle); }
+    .like-row {
+        display: flex; align-items: center; gap: 8px;
+        margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-card);
+    }
+    .like-btn-deco { display: flex; align-items: center; gap: 5px; color: var(--orange-primary); font-size: 0.85rem; font-weight: 600; }
+    .mini-avatar { width: 22px; height: 22px; background: var(--gradient-orange); border-radius: 50%; border: 2px solid var(--bg-card2); margin-left: -6px; }
+    .mini-avatar:first-child { margin-left: 0; }
+
+    /* FILTER BAR */
+    .filter-bar {
+        background: var(--bg-card); border: 1px solid var(--border-card);
+        border-radius: var(--radius-card); padding: 1.2rem 1.5rem; margin-bottom: 2rem;
+    }
+    .search-wrap { position: relative; }
+    .search-icon {
+        position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+        color: var(--text-muted); font-size: 1rem; pointer-events: none;
+    }
+    .search-wrap .form-control-dark { padding-left: 2.6rem; }
+    .sort-tab {
+        display: inline-flex; align-items: center; gap: 6px; padding: 0.4rem 1rem;
+        border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer;
+        text-decoration: none; transition: all .2s; color: var(--text-muted); border: 1px solid transparent;
+    }
+    .sort-tab:hover { color: var(--orange-light); }
+    .sort-tab.active { background: var(--orange-glow); border-color: var(--border-subtle); color: var(--orange-primary); }
+
+    /* NOTE CARD */
+    .note-card {
+        background: var(--gradient-card); border: 1px solid var(--border-card);
+        border-radius: var(--radius-card); padding: 1.4rem;
+        transition: all .3s ease; display: flex; flex-direction: column; height: 100%;
+        position: relative; overflow: hidden;
+    }
+    .note-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+        background: var(--gradient-orange); opacity: 0; transition: opacity .3s;
+    }
+    .note-card:hover {
+        border-color: var(--border-subtle); transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px var(--orange-glow);
+    }
+    .note-card:hover::before { opacity: 1; }
+    .note-subject-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: var(--orange-glow-sm); border: 1px solid var(--border-subtle);
+        color: var(--orange-light); font-size: 0.72rem; font-weight: 700;
+        padding: 3px 10px; border-radius: 50px; letter-spacing: 0.3px; text-transform: uppercase;
+    }
+    .course-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border-card);
+        color: var(--text-muted); font-size: 0.72rem; font-weight: 600;
+        padding: 3px 10px; border-radius: 50px;
+    }
+    .note-title {
+        font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+        color: var(--text-primary); margin: 0.8rem 0 0.5rem; line-height: 1.3;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .note-preview {
+        color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+        overflow: hidden; margin-bottom: auto;
+    }
+    .note-footer {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-card);
+    }
+    .note-author {
+        display: flex; align-items: center; gap: 8px;
+        color: var(--text-secondary); font-size: 0.8rem; font-weight: 500;
+    }
+    .note-author-avatar {
+        width: 26px; height: 26px; background: var(--gradient-orange); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .like-count { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); transition: color .2s; }
+    .like-count.liked { color: var(--orange-primary); }
+
+    /* SIDEBAR */
+    .sidebar-widget {
+        background: var(--gradient-card); border: 1px solid var(--border-card);
+        border-radius: var(--radius-card); padding: 1.4rem; margin-bottom: 1.5rem;
+    }
+    .widget-title {
+        font-family: var(--font-display); font-size: 0.9rem; font-weight: 700;
+        color: var(--text-primary); margin-bottom: 1.1rem; display: flex; align-items: center; gap: 8px;
+    }
+    .widget-title i { color: var(--orange-primary); }
+    .subject-filter-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.5rem 0.7rem; border-radius: 9px; cursor: pointer; transition: all .2s;
+        text-decoration: none; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 2px;
+    }
+    .subject-filter-item:hover, .subject-filter-item.active { background: var(--orange-glow-sm); color: var(--orange-light); }
+    .subject-filter-item.active { border-left: 2px solid var(--orange-primary); }
+    .subject-count {
+        font-size: 0.75rem; background: rgba(255,255,255,0.06);
+        border-radius: 50px; padding: 1px 8px; color: var(--text-muted);
+    }
+    .top-author-item { display: flex; align-items: center; gap: 10px; padding: 0.6rem 0; border-bottom: 1px solid var(--border-card); }
+    .top-author-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .top-author-rank { width: 22px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 800; color: var(--text-muted); flex-shrink: 0; text-align: center; }
+    .top-author-rank.gold   { color: #FFD700; }
+    .top-author-rank.silver { color: #C0C0C0; }
+    .top-author-rank.bronze { color: #CD7F32; }
+    .top-author-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .top-author-count { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-icon {
+        width: 80px; height: 80px; background: var(--orange-glow-sm);
+        border: 1px solid var(--border-subtle); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem; font-size: 2rem; color: var(--orange-primary);
+    }
+    .empty-state h5 { color: var(--text-primary); font-family: var(--font-display); margin-bottom: .5rem; }
+    .empty-state p { color: var(--text-muted); font-size: .9rem; }
+    .page-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .page-header h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); margin: 0; }
+</style>
+}
+
+<!-- HERO -->
+<section class="hero-section">
+    <div class="hero-grid-lines"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6 hero-content">
+                <div class="hero-eyebrow">
+                    <i class="bi bi-lightning-charge-fill"></i> Навчайся ефективніше
+                </div>
+                <h1 class="hero-title">
+                    Найкращі<br><span class="accent">конспекти</span><br>в одному місці
+                </h1>
+                <p class="hero-subtitle">
+                    Обмінюйся навчальними матеріалами, відкривай якісні конспекти від студентів та ділись власними знаннями.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#notes-feed" class="btn-orange" style="text-decoration:none;">
+                        <i class="bi bi-collection-fill"></i> Переглянути конспекти
+                    </a>
+                    @if (User.IsInRole("student"))
+                    {
+                    <a asp-controller="Notes" asp-action="MyNotes" class="btn-outline-orange" style="text-decoration:none;">
+                        <i class="bi bi-plus-lg"></i> Мої конспекти
+                    </a>
+                    }
+                    else if (!(User.Identity?.IsAuthenticated ?? false))
+                    {
+                    <a asp-controller="Auth" asp-action="Login" class="btn-outline-orange" style="text-decoration:none;">
+                        <i class="bi bi-plus-lg"></i> Поділитись конспектом
+                    </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Decorative card -->
+            <div class="col-lg-6 d-none d-lg-flex hero-deco">
+                <div class="deco-card">
+                    <div class="deco-card-header">
+                        <div class="deco-icon-wrap"><i class="bi bi-journal-code"></i></div>
+                        <div style="flex:1">
+                            <div style="height:10px;width:70%;background:rgba(255,255,255,0.12);border-radius:4px;margin-bottom:6px;"></div>
+                            <div style="height:8px;width:45%;background:rgba(255,255,255,0.06);border-radius:4px;"></div>
+                        </div>
+                    </div>
+                    <div class="deco-lines">
+                        <div class="deco-line" style="width:100%;"></div>
+                        <div class="deco-line" style="width:85%;"></div>
+                        <div class="deco-line" style="width:92%;"></div>
+                        <div class="deco-line" style="width:70%;"></div>
+                        <div class="deco-line" style="width:88%;"></div>
+                    </div>
+                    <div class="deco-tags">
+                        <div class="deco-tag" style="width:70px;"></div>
+                        <div class="deco-tag" style="width:55px;"></div>
+                        <div class="deco-tag" style="width:80px;"></div>
+                    </div>
+                    <div class="like-row">
+                        <div class="d-flex" style="margin-right:4px;">
+                            <div class="mini-avatar"></div>
+                            <div class="mini-avatar"></div>
+                            <div class="mini-avatar"></div>
+                        </div>
+                        <span class="like-btn-deco"><i class="bi bi-heart-fill"></i> 48 лайків</span>
+                        <span class="ms-auto" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;border-radius:50px;font-size:.7rem;padding:2px 10px;font-weight:600;">
+                            Схвалено
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN FEED -->
+<div class="container" style="padding-top:3rem;padding-bottom:3rem;" id="notes-feed">
+    <div class="row g-4">
+
+        <!-- Left: Notes -->
+        <div class="col-lg-8">
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <form method="get" asp-action="Index">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="subject" class="form-select form-select-dark form-control-dark">
+                                <option value="">Всі предмети</option>
+                                @if (Model?.Subjects != null)
+                                {
+                                @foreach (var s in Model.Subjects)
+                                {
+                                <option value="@s.Id" selected="@(Model.SelectedSubjectId == s.Id ? "selected" : null)">@s.Name</option>
+                                }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="course" class="form-select form-select-dark form-control-dark">
+                                <option value="">Курс</option>
+                                @for (int i = 1; i <= 4; i++)
+                                {
+                                <option value="@i" selected="@(Model?.SelectedCourse == i ? "selected" : null)">@i курс</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn-orange w-100" style="justify-content:center;">
+                                <i class="bi bi-funnel"></i> Фільтр
+                            </button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+
+            <!-- Page header -->
+            <div class="page-header">
+                <h2><i class="bi bi-collection" style="color:var(--orange-primary);margin-right:8px;"></i>Конспекти</h2>
+                @if (Model?.Notes != null)
+                {
+                <span style="color:var(--text-muted);font-size:.85rem;">
+                        Знайдено: <strong style="color:var(--text-secondary);">@Model.Notes.Count()</strong>
+                    </span>
+                }
+            </div>
+
+            <!-- Grid -->
+            @if (Model?.Notes != null && Model.Notes.Any())
+            {
+            <div class="row g-3">
+                @foreach (var note in Model.Notes)
+                {
+                <div class="col-sm-6">
+                    <a asp-controller="Notes" asp-action="Details" asp-route-id="@note.Id"
+                       style="text-decoration:none;display:block;height:100%;">
+                        <div class="note-card">
+                            <div class="d-flex flex-wrap gap-2 mb-1">
+                                <span class="note-subject-chip"><i class="bi bi-bookmark-fill"></i> @note.SubjectName</span>
+                                <span class="course-chip"><i class="bi bi-mortarboard"></i> @note.Course курс</span>
+                            </div>
+                            <div class="note-title">@note.Title</div>
+                            <div class="note-preview">@note.Content</div>
+                            <div class="note-footer">
+                                <div class="note-author">
+                                    <div class="note-author-avatar">@(note.AuthorName?.Substring(0,1).ToUpper() ?? "A")</div>
+                                    @note.AuthorName
+                                    <span style="color:var(--text-muted);">·</span>
+                                    <span style="color:var(--text-muted);">@note.CreatedAt.ToString("dd.MM.yy")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                }
+            </div>
+            }
+            else
+            {
+            <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+                <h5>Нічого не знайдено</h5>
+                <p>Спробуйте змінити фільтри або будьте першим, хто додасть конспект!</p>
+                @if (User.IsInRole("student"))
+                {
+                <a asp-controller="Notes" asp-action="MyNotes" class="btn-orange mt-2" style="text-decoration:none;">
+                    <i class="bi bi-plus-lg"></i> Додати конспект
+                </a>
+                }
+            </div>
+            }
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="col-lg-4">
+
+            <!-- Top authors -->
+            <div class="sidebar-widget">
+                <div class="widget-title"><i class="bi bi-trophy-fill"></i> Топ автори</div>
+                @if (Model?.TopAuthors != null && Model.TopAuthors.Any())
+                {
+                int rank = 0;
+                @foreach (var author in Model.TopAuthors)
+                {
+                rank++;
+                string rankClass = rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze";
+                <div class="top-author-item">
+                    <div class="top-author-rank @rankClass">#@rank</div>
+                    <div class="note-author-avatar" style="width:30px;height:30px;font-size:.7rem;">
+                        @(author.AuthorName?.Substring(0,1).ToUpper() ?? "A")
+                    </div>
+                    <div class="top-author-name">@author.AuthorName</div>
+                    <div class="top-author-count"><i class="bi bi-file-text"></i> @author.NoteCount</div>
+                </div>
+                }
+                }
+                else
+                {
+                <p style="color:var(--text-muted);font-size:.85rem;">Ще немає авторів.</p>
+                }
+            </div>
+
+            <!-- Subjects -->
+            <div class="sidebar-widget">
+                <div class="widget-title"><i class="bi bi-tag-fill"></i> Предмети</div>
+                <a href="?" class="subject-filter-item @(Model?.SelectedSubjectId == null ? "active" : "")">
+                    <span><i class="bi bi-grid me-1"></i> Всі предмети</span>
+                </a>
+                @if (Model?.Subjects.Count != null)
+                {
+                    foreach (var s in Model.Subjects)
+                    {
+                        <a href="?" class="subject-filter-item @(Model.SelectedSubjectId == s.Id ? "active" : "")">
+                            <span>@s.Name</span>
+                            <span class="subject-count">@s.Name</span>
+                        </a>
+                    }
+                }
+            </div>
+
+            <!-- Courses -->
+            <div class="sidebar-widget">
+                <div class="widget-title"><i class="bi bi-mortarboard-fill"></i> По курсах</div>
+                @for (int c = 1; c <= 4; c++)
+                {
+                <a href="?course=@c" class="subject-filter-item @(Model?.SelectedCourse == c ? "active" : "")">
+                    <span>@c курс</span>
+                </a>
+                }
+            </div>
+
+            <!-- CTA for guests -->
+            @if (!(User.Identity?.IsAuthenticated ?? false))
+            {
+            <div class="sidebar-widget" style="background:linear-gradient(135deg,rgba(255,107,26,0.12),rgba(255,140,66,0.06));
+                            border-color:var(--border-subtle);text-align:center;">
+                <i class="bi bi-journal-richtext" style="font-size:2rem;color:var(--orange-primary);display:block;margin-bottom:.8rem;"></i>
+                <div style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">Маєш конспект?</div>
+                <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:1rem;">
+                    Увійди та поділись своїми матеріалами зі спільнотою
+                </p>
+                <a asp-controller="Auth" asp-action="Login" class="btn-orange"
+                   style="text-decoration:none;width:100%;justify-content:center;display:flex;">
+                    <i class="bi bi-plus-lg"></i> Поділитись конспектом
+                </a>
+            </div>
+            }
+
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    document.querySelector('a[href="#notes-feed"]')?.addEventListener('click', e => {
+        e.preventDefault();
+        document.getElementById('notes-feed').scrollIntoView({ behavior: 'smooth' });
+    });
+</script>
+}
