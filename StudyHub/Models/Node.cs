@@ -15,7 +15,6 @@ namespace StudyHub.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Введіть назву конспекту")]
-        [StringLength(100)]
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Текст конспекту не може бути порожнім")]
