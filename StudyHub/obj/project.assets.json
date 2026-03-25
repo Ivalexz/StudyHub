@@ -2203,25 +2203,32 @@
     ]
   },
   "packageFolders": {
-    "E:\\DotnetNuget": {}
+    "C:\\Users\\abara\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\it_step\\c#\\KCDemo\\StudyHub\\StudyHub\\StudyHub.csproj",
+      "projectUniqueName": "C:\\Users\\abara\\OneDrive\\Документы\\GitHub\\StudyHub\\StudyHub\\StudyHub.csproj",
       "projectName": "StudyHub",
-      "projectPath": "D:\\it_step\\c#\\KCDemo\\StudyHub\\StudyHub\\StudyHub.csproj",
-      "packagesPath": "E:\\DotnetNuget",
-      "outputPath": "D:\\it_step\\c#\\KCDemo\\StudyHub\\StudyHub\\obj\\",
+      "projectPath": "C:\\Users\\abara\\OneDrive\\Документы\\GitHub\\StudyHub\\StudyHub\\StudyHub.csproj",
+      "packagesPath": "C:\\Users\\abara\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\abara\\OneDrive\\Документы\\GitHub\\StudyHub\\StudyHub\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\TEXHORAY\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\abara\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "E:\\dotnet\\library-packs": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2290,7 +2297,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "E:\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
