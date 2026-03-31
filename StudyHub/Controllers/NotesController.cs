@@ -14,6 +14,40 @@ namespace StudyHub.Controllers
         {
             _context = context;
         }
+        
+        public async Task<IActionResult> Index(int? subject, int? course)
+        {
+            var query = _context.Notes
+                .Include(n => n.Subject)
+                .Where(n => n.Status == NoteStatus.Approved);
+
+            if (subject.HasValue)
+                query = query.Where(n => n.SubjectId == subject.Value);
+
+            if (course.HasValue)
+                query = query.Where(n => n.Course == course.Value);
+
+            var notes = await query
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+            var subjects = await _context.Subjects.ToListAsync();
+    
+            var topAuthors = await _context.Notes
+                .Where(n => n.Status == NoteStatus.Approved)
+                .GroupBy(n => new { n.AuthorId, n.AuthorName })
+                .Select(g => new { AuthorName = g.Key.AuthorName, NoteCount = g.Count() })
+                .OrderByDescending(x => x.NoteCount)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.SelectedSubjectId = subject;
+            ViewBag.SelectedCourse = course;
+            ViewBag.Subjects = subjects;
+            ViewBag.TopAuthors = topAuthors;
+    
+            return View(notes);
+        }
 
         public async Task<IActionResult> Details(int id)
         {
