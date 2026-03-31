@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudyHub.Data;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +37,37 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("profile");
         options.Scope.Add("email");
         options.Scope.Add("roles");
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             NameClaimType = "preferred_username",
-            RoleClaimType = "roles"
+            RoleClaimType = ClaimTypes.Role
+        };
+
+        options.Events = new OpenIdConnectEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var idToken = context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
+                if (idToken == null) return Task.CompletedTask;
+
+                var realmAccess = idToken.Claims
+                    .FirstOrDefault(c => c.Type == "realm_access")?.Value;
+
+                if (realmAccess != null)
+                {
+                    var json = System.Text.Json.JsonDocument.Parse(realmAccess);
+                    if (json.RootElement.TryGetProperty("roles", out var rolesElement))
+                    {
+                        var identity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                        foreach (var role in rolesElement.EnumerateArray())
+                        {
+                            identity?.AddClaim(new System.Security.Claims.Claim(ClaimTypes.Role, role.GetString()!));
+                        }
+                    }
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 

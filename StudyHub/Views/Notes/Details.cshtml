@@ -1,0 +1,97 @@
+﻿@model StudyHub.Models.Note
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<style>
+    .note-details-card {
+        background-color: #151921;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 2.5rem;
+        color: #94a3b8;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .note-header-info {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .subject-tag {
+        background: rgba(255, 122, 0, 0.1);
+        color: #ff7a00;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .author-box {
+        background: #1c212b;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .like-section {
+        background: #0b0e13;
+        border: 1px solid #ff7a00;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    .btn-like {
+        background: #ff7a00;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn-like:hover { background: #e66e00; transform: translateY(-2px); }
+</style>
+
+<section class="py-5" style="background: linear-gradient(180deg, #1a1f29 0%, #0b0e13 100%); border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div class="container">
+        <h1 class="text-white fw-bold">@Model.Title</h1>
+        <div class="note-header-info">
+            <span class="subject-tag"><i class="bi bi-bookmark-fill"></i> @Model.Subject?.Name</span>
+            <span class="badge bg-dark border border-secondary px-3 py-2 text-secondary">@Model.Course курс</span>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5 mb-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="note-details-card">
+                <h5 class="text-white mb-4 border-bottom border-secondary pb-2">Текст конспекту</h5>
+                <div style="white-space: pre-line; line-height: 1.8;">@Model.Content</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="author-box mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:45px; height:45px; background:#ff7a00; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">
+                        @(Model.AuthorName?[0].ToString().ToUpper() ?? "A")
+                    </div>
+                    <div>
+                        <div class="text-white fw-bold">@Model.AuthorName</div>
+                        <div class="text-muted small">Автор конспекту</div>
+                    </div>
+                </div>
+                <hr class="border-secondary">
+                <div class="text-muted small">Дата: @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</div>
+            </div>
+
+            <div class="like-section">
+                <div class="h2 text-white mb-3"><i class="bi bi-heart-fill text-danger"></i> @Model.LikesCount</div>
+                @if (User.Identity?.IsAuthenticated == true) {
+                    <form asp-action="Like" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn-like">ЛАЙКНУТИ</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

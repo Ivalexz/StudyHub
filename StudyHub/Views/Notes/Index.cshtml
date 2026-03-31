@@ -386,12 +386,21 @@
             <!-- Section header -->
             <div class="section-header">
                 <h2><i class="bi bi-grid-3x3-gap-fill"></i> Результати</h2>
-                @if (Model != null)
-                {
-                    <span class="results-count">
-                        Знайдено: <strong>@Model.Count()</strong>
-                    </span>
-                }
+                <div class="d-flex align-items-center gap-3">
+                    @if (Model != null)
+                    {
+                        <span class="results-count">
+                            Знайдено: <strong>@Model.Count()</strong>
+                        </span>
+                    }
+                    @if (User.IsInRole("student"))
+                    {
+                        <a asp-controller="Notes" asp-action="Create" class="btn-orange"
+                           style="text-decoration:none;">
+                            <i class="bi bi-plus-lg"></i> Додати
+                        </a>
+                    }
+                </div>
             </div>
 
             <!-- Grid -->
@@ -518,10 +527,28 @@
                     <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:1rem;">
                         Увійди та поділись своїми матеріалами зі спільнотою
                     </p>
-                    <a asp-controller="Auth" asp-action="Login" class="btn-orange"
+                    <a asp-controller="Home" asp-action="Login" class="btn-orange"
                        style="text-decoration:none;width:100%;justify-content:center;display:flex;">
                         <i class="bi bi-plus-lg"></i> Поділитись конспектом
                     </a>
+                </div>
+            }
+            else if (User.IsInRole("student"))
+            {
+                <div class="sidebar-widget" style="background:linear-gradient(135deg,rgba(255,107,26,0.12),rgba(255,140,66,0.06));
+         border-color:var(--border-subtle);text-align:center;">
+                    <i class="bi bi-journal-richtext" style="font-size:2rem;color:var(--orange-primary);display:block;margin-bottom:.8rem;"></i>
+                    <div style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">Мої конспекти</div>
+                    <div class="d-flex flex-column gap-2">
+                        <a asp-controller="Notes" asp-action="MyNotes" class="btn-orange"
+                           style="text-decoration:none;width:100%;justify-content:center;display:flex;">
+                            <i class="bi bi-person-lines-fill"></i> Мої конспекти
+                        </a>
+                        <a asp-controller="Notes" asp-action="Create" class="btn-ghost"
+                           style="text-decoration:none;width:100%;justify-content:center;display:flex;">
+                            <i class="bi bi-plus-lg"></i> Додати конспект
+                        </a>
+                    </div>
                 </div>
             }
         </div>

@@ -14,6 +14,10 @@ namespace StudyHub.Controllers
     
             return RedirectToAction(nameof(Index));
         }
+        public IActionResult Claims()
+        {
+            return Json(User.Claims.Select(c => new { c.Type, c.Value }));
+        }
         public IActionResult Index()
         {
             return View();

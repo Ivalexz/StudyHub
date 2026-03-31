@@ -36,8 +36,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/it_step/c\#/KCDemo/StudyHub/StudyHub/Views/Notes/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90ZXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/it_step/c\#/KCDemo/StudyHub/StudyHub/Views/Notes/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90ZXNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/it_step/c\#/KCDemo/StudyHub/StudyHub/Views/Notes/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90ZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/it_step/c\#/KCDemo/StudyHub/StudyHub/Views/Notes/MyNotes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90ZXNcTXlOb3Rlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/it_step/c\#/KCDemo/StudyHub/StudyHub/Views/Shared/Error.cshtml]

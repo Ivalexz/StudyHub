@@ -1,0 +1,77 @@
+﻿@model StudyHub.Models.Note
+@{
+    ViewData["Title"] = "Створити конспект";
+}
+
+<style>
+    .create-form-card {
+        background: #151921;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 30px;
+    }
+    .form-label { color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+    .form-input-dark {
+        background: #1c212b !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        padding: 12px !important;
+        border-radius: 8px !important;
+    }
+    .form-input-dark:focus {
+        border-color: #ff7a00 !important;
+        box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2) !important;
+    }
+    .btn-submit-orange {
+        background: #ff7a00;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        width: 100%;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="create-form-card">
+                <h3 class="text-white mb-4"><i class="bi bi-pencil-square text-orange" style="color:#ff7a00;"></i> Новий матеріал</h3>
+                
+                <form asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Назва конспекту</label>
+                        <input asp-for="Title" class="form-control form-input-dark" placeholder="Введіть тему..." />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Предмет</label>
+                            <select asp-for="SubjectId" class="form-select form-input-dark" 
+                                    asp-items="@(new SelectList(ViewBag.Subjects, "Id", "Name"))">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Курс</label>
+                            <select asp-for="Course" class="form-select form-input-dark">
+                                <option value="1">1 курс</option>
+                                <option value="2">2 курс</option>
+                                <option value="3">3 курс</option>
+                                <option value="4">4 курс</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Зміст</label>
+                        <textarea asp-for="Content" class="form-control form-input-dark" rows="10" placeholder="Ваш текст тут..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit-orange">ВІДПРАВИТИ НА МОДЕРАЦІЮ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

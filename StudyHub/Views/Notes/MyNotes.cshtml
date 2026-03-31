@@ -1,0 +1,86 @@
+﻿@model IEnumerable<StudyHub.Models.Note>
+@{
+    ViewData["Title"] = "Мої конспекти";
+}
+
+<style>
+    .hltv-table-container {
+        background: #151921;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .hltv-table thead th {
+        background: #0b0e13;
+        color: #64748b;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 15px;
+        border: none;
+    }
+    .hltv-table tbody td {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        vertical-align: middle;
+    }
+    .hltv-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .status-pending { background: #f59e0b; color: #000; }
+    .status-approved { background: #10b981; color: #fff; }
+    .status-rejected { background: #ef4444; color: #fff; }
+
+    .btn-create-new {
+        background: #ff7a00;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn-create-new:hover { background: #e66e00; color: white; }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white fw-bold">Мої конспекти</h2>
+        <a asp-action="Create" class="btn-create-new">+ НОВИЙ КОНСПЕКТ</a>
+    </div>
+
+    <div class="hltv-table-container">
+        <table class="table table-dark hltv-table mb-0">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Предмет</th>
+                    <th>Статус</th>
+                    <th class="text-end">Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var note in Model) {
+                    <tr>
+                        <td class="text-white fw-bold">@note.Title</td>
+                        <td>@note.Subject?.Name</td>
+                        <td>
+                            <span class="status-badge status-@(note.Status.ToString().ToLower())">
+                                @note.Status
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@note.Id" class="text-orange" style="color:#ff7a00;"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
