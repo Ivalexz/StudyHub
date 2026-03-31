@@ -16,6 +16,10 @@ out/
 # Visual Studio
 .vs/
 
+# Rider
+.idea/
+*.sln.iml
+
 # Logs
 *.log
 
@@ -62,3 +66,4 @@ standalone.conf
 #json
 appsettings.Development.json
 appsettings.json
+ 

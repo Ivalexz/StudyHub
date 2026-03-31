@@ -326,7 +326,7 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" style="color:#ef4444;" asp-controller="Auth" asp-action="Logout">
+                                <a class="dropdown-item" style="color:#ef4444;" asp-controller="Home" asp-action="Logout">
                                     <i class="bi bi-box-arrow-right"></i> Вийти
                                 </a>
                             </li>
@@ -335,12 +335,14 @@
                 }
                 else
                 {
-                    <a asp-controller="Auth" asp-action="Login" class="btn-ghost">
+                    <a asp-controller="Home" asp-action="Login" class="btn-ghost">
                         <i class="bi bi-box-arrow-in-right"></i> Увійти
                     </a>
-                    <a asp-controller="Auth" asp-action="Login" class="btn-orange" style="text-decoration:none;">
+                    /*
+                    <a asp-controller="Notes" asp-action="MyNotes" class="btn-orange" style="text-decoration:none;">
                         <i class="bi bi-person-plus"></i> Приєднатись
                     </a>
+                    */
                 }
             </div>
         </div>
