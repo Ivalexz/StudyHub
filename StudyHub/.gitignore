@@ -1,0 +1,60 @@
+﻿# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Dotnet tools
+.dotnet/
+
+# Redis dump files
+dump.rdb
+*.rdb
+
+# Docker
+docker-compose.override.yml
+.docker/
+*.pid
+
+# Keycloak
+standalone/
+standalone.xml
+standalone.conf
+
+# SQLite / SQL Server local files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Cache
+.cache/
+*.cache
