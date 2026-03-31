@@ -11,6 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<StudyHubContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+var clientSecret = builder.Configuration["Keycloak:ClientSecret"];
 
 builder.Services.AddAuthentication(options =>
     {
@@ -22,7 +23,7 @@ builder.Services.AddAuthentication(options =>
     {
         options.Authority = "http://localhost:8080/realms/studyhub";
         options.ClientId = "studyhub-web";
-        options.ClientSecret = "eTtoT0slVv3DHpNtyBTku4bhZr0X1JY0";
+        options.ClientSecret = clientSecret;
         options.ResponseType = "code";
         options.SaveTokens = true;
         options.Scope.Add("openid");
