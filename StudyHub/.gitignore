@@ -58,3 +58,7 @@ standalone.conf
 # Cache
 .cache/
 *.cache
+
+#json
+appsettings.Development.json
+appsettings.json
