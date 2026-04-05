@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudyHub.Data;
+using StudyHub.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,21 +46,25 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "StudyHub_";
 });
 
+
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddScoped<RedisService>();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
