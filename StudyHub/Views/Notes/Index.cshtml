@@ -465,25 +465,31 @@
             <!-- Top authors -->
             <div class="sidebar-widget">
                 <div class="widget-title"><i class="bi bi-trophy-fill"></i> Топ автори</div>
-                @if (topAuthors != null && ((IEnumerable<dynamic>)topAuthors).Any())
+                @if (topAuthors?.Any() ?? false)
                 {
                     int rank = 0;
-                    @foreach (var author in topAuthors)
+                    foreach (var author in topAuthors!)
                     {
                         rank++;
                         string rankClass = rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze";
+
                         <div class="top-author-item">
                             <div class="top-author-rank @rankClass">#@rank</div>
                             <div class="note-author-avatar" style="width:30px;height:30px;font-size:.7rem;">
-                                @(author.AuthorName?.Substring(0,1).ToUpper() ?? "A")
+                                @(author?.AuthorName?.Substring(0,1).ToUpper() ?? "A")
                             </div>
-                            <div class="top-author-name">@author.AuthorName</div>
+                            <div class="top-author-name">@author?.AuthorName</div>
                             <div class="top-author-count">
-                                <i class="bi bi-file-text"></i> @author.NoteCount
+                                <i class="bi bi-file-text"></i> @(author?.NoteCount ?? 0)
                             </div>
                         </div>
                     }
                 }
+                else
+                {
+                    <p>Немає авторів для відображення</p>
+                }
+
                 else
                 {
                     <p style="color:var(--text-muted);font-size:.85rem;">Ще немає авторів.</p>

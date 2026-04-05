@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyHub.Data;
 
@@ -10,9 +11,11 @@ using StudyHub.Data;
 namespace StudyHub.Migrations
 {
     [DbContext(typeof(StudyHubContext))]
-    partial class StudyHubContextModelSnapshot : ModelSnapshot
+    [Migration("20260405183710_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.14");
@@ -49,7 +52,6 @@ namespace StudyHub.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("AuthorName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Content")
@@ -65,7 +67,7 @@ namespace StudyHub.Migrations
                     b.Property<int>("LikesCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Status")
+                    b.Property<int?>("Status")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SubjectId")

@@ -64,7 +64,7 @@ namespace StudyHub.Controllers
         [Authorize(Roles = "student")]
         public async Task<IActionResult> MyNotes()
         {
-            var userId = User.FindFirst("sub")?.Value; // claim з Keycloak
+            var userId = User.FindFirst("sub")?.Value; 
             var notes = await _context.Notes
                 .Where(n => n.AuthorId == userId)
                 .Include(n => n.Subject)

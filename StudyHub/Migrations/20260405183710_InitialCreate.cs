@@ -35,8 +35,8 @@ namespace StudyHub.Migrations
                     Course = table.Column<int>(type: "INTEGER", nullable: false),
                     SubjectId = table.Column<int>(type: "INTEGER", nullable: false),
                     AuthorId = table.Column<string>(type: "TEXT", nullable: false),
-                    AuthorName = table.Column<string>(type: "TEXT", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    AuthorName = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<int>(type: "INTEGER", nullable: true),
                     LikesCount = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
