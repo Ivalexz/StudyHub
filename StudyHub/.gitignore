@@ -58,6 +58,7 @@ standalone.conf
 *.sqlite
 *.mdf
 *.ldf
+*.log
 
 # Cache
 .cache/
