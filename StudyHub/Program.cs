@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudyHub.Data;
@@ -43,7 +44,34 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters = new TokenValidationParameters
         {
             NameClaimType = "preferred_username",
-            RoleClaimType = "roles"
+            RoleClaimType = ClaimTypes.Role
+        };
+        options.Events = new OpenIdConnectEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+                if (claimsIdentity == null) return Task.CompletedTask;
+                
+                var accessToken = context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
+                var realmAccess = accessToken?.Claims
+                    .FirstOrDefault(c => c.Type == "realm_access")?.Value;
+
+                if (realmAccess != null)
+                {
+                    var json = System.Text.Json.JsonDocument.Parse(realmAccess);
+                    if (json.RootElement.TryGetProperty("roles", out var roles))
+                    {
+                        foreach (var role in roles.EnumerateArray())
+                        {
+                            claimsIdentity.AddClaim(
+                                new Claim(ClaimTypes.Role, role.GetString() ?? "")
+                            );
+                        }
+                    }
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 

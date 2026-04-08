@@ -1,0 +1,251 @@
+﻿@model IEnumerable<StudyHub.Models.Note>
+@{
+    ViewData["Title"] = "Черга модерації";
+    var pending = Model.Where(n => n.Status == NoteStatus.Pending).ToList();
+}
+
+@section Styles {
+<style>
+    .mod-hero {
+        background: linear-gradient(135deg, #0f0800 0%, #1a0d05 60%, #0a0a0a 100%);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 2.5rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .mod-hero::after {
+        content: '';
+        position: absolute;
+        right: -80px; top: -80px;
+        width: 340px; height: 340px;
+        background: radial-gradient(circle, rgba(255,107,26,0.10), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .queue-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-card);
+        transition: border-color 0.2s ease, transform 0.2s ease;
+        overflow: hidden;
+    }
+    .queue-card:hover {
+        border-color: var(--border-subtle);
+        transform: translateY(-2px);
+    }
+    .queue-card-header {
+        padding: 1.1rem 1.3rem 0.8rem;
+        border-bottom: 1px solid var(--border-card);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .queue-card-body { padding: 1rem 1.3rem; }
+    .queue-card-footer {
+        padding: 0.8rem 1.3rem;
+        border-top: 1px solid var(--border-card);
+        background: rgba(255,255,255,0.02);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .note-type-icon {
+        width: 40px; height: 40px;
+        background: var(--orange-glow);
+        border: 1px solid var(--border-subtle);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        color: var(--orange-primary);
+        font-size: 1.1rem;
+    }
+    .meta-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: 0.75rem; color: var(--text-muted);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--border-card);
+        border-radius: 6px; padding: 3px 9px;
+    }
+    .empty-state {
+        text-align: center; padding: 5rem 2rem;
+        color: var(--text-muted);
+    }
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: var(--orange-glow-sm);
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; color: var(--orange-dim);
+        margin: 0 auto 1.5rem;
+    }
+    .stat-pill {
+        background: var(--orange-glow);
+        border: 1px solid var(--border-subtle);
+        border-radius: 50px; padding: 0.35rem 1rem;
+        font-size: 0.8rem; font-weight: 600; color: var(--orange-light);
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-approve {
+        background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+        color: #22c55e; border-radius: 8px; padding: 0.38rem 1rem;
+        font-size: 0.82rem; font-weight: 600; font-family: var(--font-display);
+        transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none;
+    }
+    .btn-approve:hover {
+        background: rgba(34,197,94,0.18); color: #4ade80;
+        border-color: rgba(34,197,94,0.4);
+    }
+    .btn-reject {
+        background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+        color: #ef4444; border-radius: 8px; padding: 0.38rem 1rem;
+        font-size: 0.82rem; font-weight: 600; font-family: var(--font-display);
+        transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none;
+    }
+    .btn-reject:hover {
+        background: rgba(239,68,68,0.14); color: #f87171;
+        border-color: rgba(239,68,68,0.35);
+    }
+    .note-description {
+        font-size: 0.875rem; color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+}
+
+<div class="mod-hero">
+    <div class="container position-relative" style="z-index:1;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <div class="section-label mb-2">
+                    <i class="bi bi-shield-check"></i> Модерація
+                </div>
+                <h1 style="font-size:2rem;margin:0;">Черга перевірки</h1>
+                <p style="color:var(--text-muted);margin-top:.4rem;font-size:.9rem;">
+                    Перегляньте та схваліть або відхиліть конспекти студентів
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="stat-pill">
+                    <i class="bi bi-clock-history"></i>
+                    @pending.Count очікують
+                </div>
+                <a asp-action="Stats" class="btn-ghost">
+                    <i class="bi bi-bar-chart-line"></i> Статистика
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem;">
+
+    @if (!pending.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-check2-all"></i>
+            </div>
+            <h3 style="font-size:1.3rem;margin-bottom:.5rem;">Черга порожня</h3>
+            <p style="font-size:.9rem;max-width:320px;margin:0 auto;">
+                Наразі немає конспектів, що очікують на перевірку. Поверніться пізніше.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+    @foreach (var note in pending)
+    {
+        <div class="col-12 col-lg-6">
+            <div class="queue-card">
+                <div class="queue-card-header">
+                    <div class="note-type-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <div style="flex:1;min-width:0;">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h5 style="margin:0;font-size:1rem;font-weight:700;">
+                                @note.Title
+                            </h5>
+
+                            <span class="status-badge status-pending">
+                                <i class="bi bi-hourglass-split" style="font-size:.65rem;"></i>
+                                @note.Status
+                            </span>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            @* Предмет *@
+                            @if (note.Subject != null)
+                            {
+                                <span class="meta-chip">
+                                    <i class="bi bi-book"></i> @note.Subject.Name
+                                </span>
+                            }
+
+                            @* Автор *@
+                            @if (!string.IsNullOrEmpty(note.AuthorName))
+                            {
+                                <span class="meta-chip">
+                                    <i class="bi bi-person"></i> @note.AuthorName
+                                </span>
+                            }
+
+                            @* Курс *@
+                            <span class="meta-chip">
+                                <i class="bi bi-mortarboard"></i> @note.Course курс
+                            </span>
+
+                            @* ID *@
+                            <span class="meta-chip">
+                                <i class="bi bi-hash"></i> ID: @note.Id
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+
+                @* Замість Description — частина Content *@
+                <div class="queue-card-body">
+                    <p class="note-description">
+                        @(note.Content.Length > 150 
+                            ? note.Content.Substring(0, 150) + "..." 
+                            : note.Content)
+                    </p>
+                </div>
+
+                <div class="queue-card-footer">
+
+                    <a asp-action="Approve" asp-route-id="@note.Id" class="btn-approve">
+                        <i class="bi bi-check-lg"></i> Схвалити
+                    </a>
+
+                    <a asp-action="Reject" asp-route-id="@note.Id" class="btn-reject">
+                        <i class="bi bi-x-lg"></i> Відхилити
+                    </a>
+
+                    <a asp-controller="Notes"
+                       asp-action="Details"
+                       asp-route-id="@note.Id"
+                       class="btn-ghost ms-auto"
+                       style="padding:.35rem .9rem;font-size:.8rem;">
+                        <i class="bi bi-eye"></i> Переглянути
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    }
+        </div>
+    }
+</div>

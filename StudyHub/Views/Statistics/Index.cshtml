@@ -1,0 +1,323 @@
+﻿@model IEnumerable<StudyHub.Models.Note>
+@{
+    ViewData["Title"] = "Статистика модерації";
+    var allNotes = Model.ToList();
+    var approved = allNotes.Count(n => n.Status == NoteStatus.Approved);
+    var rejected = allNotes.Count(n => n.Status == NoteStatus.Rejected);
+    var pending  = allNotes.Count(n => n.Status == NoteStatus.Pending);
+    var total    = allNotes.Count;
+    var approvalRate = total > 0 ? (int)Math.Round((double)approved / total * 100) : 0;
+
+    var bySubject = allNotes
+        .Where(n => n.Subject != null)
+        .GroupBy(n => n.Subject.Name)
+        .Select(g => new { Subject = g.Key, Count = g.Count() })
+        .OrderByDescending(x => x.Count)
+        .Take(8)
+        .ToList();
+}
+
+@section Styles {
+<style>
+    .stats-hero {
+        background: linear-gradient(135deg, #0f0800 0%, #1a0d05 60%, #0a0a0a 100%);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 2.5rem 0 2rem;
+        position: relative; overflow: hidden;
+    }
+    .stats-hero::after {
+        content: '';
+        position: absolute; right: -60px; top: -60px;
+        width: 320px; height: 320px;
+        background: radial-gradient(circle, rgba(255,107,26,0.09), transparent 70%);
+        border-radius: 50%; pointer-events: none;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-card);
+        padding: 1.4rem 1.5rem;
+        position: relative; overflow: hidden;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border-subtle); transform: translateY(-2px); }
+    .stat-card-label {
+        font-size: 0.75rem; font-weight: 600; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: .5rem;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .stat-card-value {
+        font-family: var(--font-display);
+        font-size: 2.4rem; font-weight: 800;
+        line-height: 1; margin-bottom: .3rem;
+    }
+    .stat-card-sub { font-size: 0.8rem; color: var(--text-muted); }
+    .stat-card-accent {
+        position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .section-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+    }
+    .section-card-header {
+        padding: 1.1rem 1.4rem;
+        border-bottom: 1px solid var(--border-card);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .section-card-body { padding: 1.2rem 1.4rem; }
+
+    .donut-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+    .donut-wrap svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+    .donut-center {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+    }
+    .donut-center-num {
+        font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
+        line-height: 1;
+    }
+    .donut-center-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+
+    .legend-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid var(--border-card);
+        font-size: 0.875rem;
+    }
+    .legend-row:last-child { border-bottom: none; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label { font-size: 0.82rem; color: var(--text-secondary); min-width: 130px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: rgba(255,255,255,0.05); border-radius: 4px; height: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: var(--gradient-orange); transition: width 0.6s ease; }
+    .bar-count { font-size: 0.78rem; color: var(--text-muted); min-width: 28px; text-align: right; }
+</style>
+}
+
+<div class="stats-hero">
+    <div class="container position-relative" style="z-index:1;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <div class="section-label mb-2">
+                    <i class="bi bi-bar-chart-line"></i> Статистика
+                </div>
+                <h1 style="font-size:2rem;margin:0;">Огляд модерації</h1>
+                <p style="color:var(--text-muted);margin-top:.4rem;font-size:.9rem;">
+                    Загальна статистика по всіх конспектах платформи
+                </p>
+            </div>
+            <a asp-controller="Moderation" asp-action="Index" class="btn-ghost">
+                <i class="bi bi-shield-check"></i> До черги
+                @if (pending > 0)
+                {
+                    <span class="badge-queue">@pending</span>
+                }
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem;">
+
+    <!-- Metric cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label"><i class="bi bi-collection"></i> Всього</div>
+                <div class="stat-card-value">@total</div>
+                <div class="stat-card-sub">конспектів на платформі</div>
+                <div class="stat-card-accent" style="background:rgba(255,255,255,0.1);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label"><i class="bi bi-check-circle"></i> Схвалено</div>
+                <div class="stat-card-value" style="color:#22c55e;">@approved</div>
+                <div class="stat-card-sub">@approvalRate% від загального</div>
+                <div class="stat-card-accent" style="background:rgba(34,197,94,0.4);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label"><i class="bi bi-x-circle"></i> Відхилено</div>
+                <div class="stat-card-value" style="color:#ef4444;">@rejected</div>
+                @{ var rejRate = total > 0 ? (int)Math.Round((double)rejected / total * 100) : 0; }
+                <div class="stat-card-sub">@rejRate% від загального</div>
+                <div class="stat-card-accent" style="background:rgba(239,68,68,0.4);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label"><i class="bi bi-hourglass-split"></i> Очікують</div>
+                <div class="stat-card-value" style="color:#ffc107;">@pending</div>
+                <div class="stat-card-sub">потребують перевірки</div>
+                <div class="stat-card-accent" style="background:rgba(255,193,7,0.4);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Donut chart -->
+        <div class="col-12 col-lg-5">
+            <div class="section-card h-100">
+                <div class="section-card-header">
+                    <i class="bi bi-pie-chart" style="color:var(--orange-primary);"></i>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:.95rem;">Розподіл статусів</span>
+                </div>
+                <div class="section-card-body">
+                    @{
+                        double r = 56; double cx = 70; double cy = 70;
+                        double circ = 2 * Math.PI * r;
+                        double approvedDash = total > 0 ? approved / (double)total * circ : 0;
+                        double rejectedDash = total > 0 ? rejected / (double)total * circ : 0;
+                        double pendingDash  = total > 0 ? pending  / (double)total * circ : 0;
+                        double approvedOff  = 0;
+                        double rejectedOff  = circ - approvedDash;
+                        double pendingOff   = rejectedOff - rejectedDash;
+                    }
+                    <div class="d-flex align-items-center gap-4 flex-wrap">
+                        <div class="donut-wrap">
+                            @{
+                                string aDash   = approvedDash.ToString("F2");
+                                string aGap    = (circ - approvedDash).ToString("F2");
+                                string aOff    = (-approvedOff).ToString("F2");
+
+                                string rDash   = rejectedDash.ToString("F2");
+                                string rGap    = (circ - rejectedDash).ToString("F2");
+                                string rOff    = (-rejectedOff).ToString("F2");
+
+                                string pDash   = pendingDash.ToString("F2");
+                                string pGap    = (circ - pendingDash).ToString("F2");
+                                string pOff    = (-pendingOff).ToString("F2");
+                            }
+
+                            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="@cx" cy="@cy" r="@r" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14" />
+                                @if (total > 0)
+                                {
+                                    <circle cx="@cx" cy="@cy" r="@r" fill="none" stroke="#22c55e" stroke-width="14"
+                                            stroke-dasharray="@aDash @aGap" stroke-dashoffset="@aOff" />
+                                    <circle cx="@cx" cy="@cy" r="@r" fill="none" stroke="#ef4444" stroke-width="14"
+                                            stroke-dasharray="@rDash @rGap" stroke-dashoffset="@rOff" />
+                                    <circle cx="@cx" cy="@cy" r="@r" fill="none" stroke="#ffc107" stroke-width="14"
+                                            stroke-dasharray="@pDash @pGap" stroke-dashoffset="@pOff" />
+                                }
+                            </svg>
+                            <div class="donut-center">
+                                <div class="donut-center-num">@total</div>
+                                <div class="donut-center-lbl">всього</div>
+                            </div>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="legend-row">
+                                <div class="legend-dot" style="background:#22c55e;"></div>
+                                <span style="flex:1;color:var(--text-secondary);">Схвалено</span>
+                                <span style="font-weight:700;color:#22c55e;">@approved</span>
+                            </div>
+                            <div class="legend-row">
+                                <div class="legend-dot" style="background:#ef4444;"></div>
+                                <span style="flex:1;color:var(--text-secondary);">Відхилено</span>
+                                <span style="font-weight:700;color:#ef4444;">@rejected</span>
+                            </div>
+                            <div class="legend-row">
+                                <div class="legend-dot" style="background:#ffc107;"></div>
+                                <span style="flex:1;color:var(--text-secondary);">Очікують</span>
+                                <span style="font-weight:700;color:#ffc107;">@pending</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- By subject -->
+        <div class="col-12 col-lg-7">
+            <div class="section-card h-100">
+                <div class="section-card-header">
+                    <i class="bi bi-bar-chart-steps" style="color:var(--orange-primary);"></i>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:.95rem;">За предметами</span>
+                </div>
+                <div class="section-card-body">
+                    @if (!bySubject.Any())
+                    {
+                        <p style="color:var(--text-muted);font-size:.875rem;margin:0;">Даних поки немає</p>
+                    }
+                    else
+                    {
+                        int maxCount = bySubject.Max(x => x.Count);
+                        foreach (var item in bySubject)
+                        {
+                            int pct = maxCount > 0 ? (int)Math.Round((double)item.Count / maxCount * 100) : 0;
+                            <div class="bar-row">
+                                <div class="bar-label" title="@item.Subject">@item.Subject</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width:@pct%;"></div>
+                                </div>
+                                <div class="bar-count">@item.Count</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent table -->
+    @if (allNotes.Any())
+    {
+        <div class="section-card mt-3">
+            <div class="section-card-header">
+                <i class="bi bi-clock-history" style="color:var(--orange-primary);"></i>
+                <span style="font-family:var(--font-display);font-weight:700;font-size:.95rem;">Останні конспекти</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-card);">
+                            <th style="padding:.7rem 1.4rem;text-align:left;color:var(--text-muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.8px;">Назва</th>
+                            <th style="padding:.7rem 1rem;text-align:left;color:var(--text-muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.8px;">Предмет</th>
+                            <th style="padding:.7rem 1rem;text-align:left;color:var(--text-muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.8px;">Автор</th>
+                            <th style="padding:.7rem 1.4rem;text-align:right;color:var(--text-muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.8px;">Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var note in allNotes.TakeLast(10).Reverse())
+                        {
+                            <tr style="border-bottom:1px solid var(--border-card);transition:background .15s;" 
+                                onmouseover="this.style.background='rgba(255,255,255,0.02)'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding:.7rem 1.4rem;color:var(--text-primary);font-weight:500;">
+                                    @(note.Title?.Length > 40 ? note.Title.Substring(0, 40) + "..." : note.Title)
+                                </td>
+                                <td style="padding:.7rem 1rem;color:var(--text-secondary);">@(note.Subject?.Name ?? "—")</td>
+                                <td style="padding:.7rem 1rem;color:var(--text-secondary);">@(note.AuthorName ?? "—")</td>
+                                <td style="padding:.7rem 1.4rem;text-align:right;">
+                                    @if (note.Status == NoteStatus.Approved)
+                                    {
+                                        <span class="status-badge status-approved"><i class="bi bi-check-circle" style="font-size:.65rem;"></i> Схвалено</span>
+                                    }
+                                    else if (note.Status == NoteStatus.Rejected)
+                                    {
+                                        <span class="status-badge status-rejected"><i class="bi bi-x-circle" style="font-size:.65rem;"></i> Відхилено</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-pending"><i class="bi bi-hourglass-split" style="font-size:.65rem;"></i> Очікує</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>

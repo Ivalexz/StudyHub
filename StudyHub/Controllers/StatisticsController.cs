@@ -34,7 +34,10 @@ public class StatisticsController : Controller
         ViewBag.ByCourses = byCourses;
         ViewBag.ByStatus = byStatus;
 
-        return View();
+        var allNotes = await _context.Notes
+            .Include(n => n.Subject)
+            .ToListAsync();
+        return View(allNotes);
     }
 
     public IActionResult ClearCache()
