@@ -1,10 +1,12 @@
-﻿@model IEnumerable<StudyHub.Models.Note>
+﻿@using StudyHub.ViewModels
+@using System.Linq
+@model IEnumerable<StudyHub.Models.Note>
 @{
     ViewData["Title"] = "Конспекти";
     var subjects = ViewBag.Subjects as List<StudyHub.Models.Subject> ?? new();
     var selectedSubjectId = ViewBag.SelectedSubjectId as int?;
     var selectedCourse = ViewBag.SelectedCourse as int?;
-    var topAuthors = ViewBag.TopAuthors as dynamic;
+    var topAuthorsList = ViewBag.TopAuthors as List<TopAuthorViewModel> ?? new List<TopAuthorViewModel>();
 }
 
 @section Styles {
@@ -353,7 +355,7 @@
                         <div class="col-md-5">
                             <div class="search-wrap">
                                 <i class="bi bi-search search-icon"></i>
-                                <input type="text" name="search" class="form-control-dark" placeholder="Пошук конспектів..." />
+                                <input type="text" name="search" class="form-control-dark" placeholder="Пошук конспектів..." value="@Context.Request.Query["search"]" />
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -422,7 +424,7 @@
                                         </span>
                                     </div>
                                     <div class="note-title">@note.Title</div>
-                                    <div class="note-preview">@note.Content</div>
+                                    <div class="note-preview">@(note.Content.Length > 150 ? note.Content.Substring(0, 150) + "..." : note.Content)</div>
                                     <div class="note-footer">
                                         <div class="note-author">
                                             <div class="note-author-avatar">
@@ -465,10 +467,10 @@
             <!-- Top authors -->
             <div class="sidebar-widget">
                 <div class="widget-title"><i class="bi bi-trophy-fill"></i> Топ автори</div>
-                @if (topAuthors?.Any() ?? false)
+                @if (topAuthorsList.Any())
                 {
                     int rank = 0;
-                    foreach (var author in topAuthors!)
+                    foreach (var author in topAuthorsList)
                     {
                         rank++;
                         string rankClass = rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze";
@@ -476,20 +478,15 @@
                         <div class="top-author-item">
                             <div class="top-author-rank @rankClass">#@rank</div>
                             <div class="note-author-avatar" style="width:30px;height:30px;font-size:.7rem;">
-                                @(author?.AuthorName?.Substring(0,1).ToUpper() ?? "A")
+                                @(author.AuthorName?.Substring(0,1).ToUpper() ?? "A")
                             </div>
-                            <div class="top-author-name">@author?.AuthorName</div>
+                            <div class="top-author-name">@author.AuthorName</div>
                             <div class="top-author-count">
-                                <i class="bi bi-file-text"></i> @(author?.NoteCount ?? 0)
+                                <i class="bi bi-file-text"></i> @author.NoteCount
                             </div>
                         </div>
                     }
                 }
-                else
-                {
-                    <p>Немає авторів для відображення</p>
-                }
-
                 else
                 {
                     <p style="color:var(--text-muted);font-size:.85rem;">Ще немає авторів.</p>
@@ -542,7 +539,7 @@
             else if (User.IsInRole("student"))
             {
                 <div class="sidebar-widget" style="background:linear-gradient(135deg,rgba(255,107,26,0.12),rgba(255,140,66,0.06));
-         border-color:var(--border-subtle);text-align:center;">
+                     border-color:var(--border-subtle);text-align:center;">
                     <i class="bi bi-journal-richtext" style="font-size:2rem;color:var(--orange-primary);display:block;margin-bottom:.8rem;"></i>
                     <div style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">Мої конспекти</div>
                     <div class="d-flex flex-column gap-2">
