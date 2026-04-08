@@ -3,15 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyHub.Data;
 using StudyHub.Models;
+using StudyHub.Services;
 
 [Authorize(Roles = "moderator")]
 public class ModerationController : Controller
 {
     private readonly StudyHubContext _context;
+    private readonly RedisService _redisService;
 
-    public ModerationController(StudyHubContext context)
+    public ModerationController(StudyHubContext context, RedisService redisService)
     {
         _context = context;
+        _redisService = redisService;
     }
 
     public async Task<IActionResult> Index()
@@ -20,7 +23,7 @@ public class ModerationController : Controller
             .Where(n => n.Status == NoteStatus.Pending)
             .ToListAsync();
 
-        ViewBag.QueueCount = pendingNotes.Count;
+        ViewBag.QueueCount = await _redisService.GetPendingCountAsync();
         return View(pendingNotes);
     }
 
@@ -32,6 +35,8 @@ public class ModerationController : Controller
         note.Status = NoteStatus.Approved;
         await _context.SaveChangesAsync();
 
+        await _redisService.ClearCacheAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -42,6 +47,8 @@ public class ModerationController : Controller
 
         note.Status = NoteStatus.Rejected;
         await _context.SaveChangesAsync();
+        
+        await _redisService.ClearCacheAsync();
 
         return RedirectToAction(nameof(Index));
     }

@@ -3,51 +3,46 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyHub.Data;
 using StudyHub.Models;
+using StudyHub.Services;
 
 namespace StudyHub.Controllers
 {
     public class NotesController : Controller
     {
         private readonly StudyHubContext _context;
+        private readonly RedisService _redisService;
 
-        public NotesController(StudyHubContext context)
+        public NotesController(StudyHubContext context, RedisService redisService)
         {
             _context = context;
+            _redisService = redisService;
         }
         
         public async Task<IActionResult> Index(int? subject, int? course)
         {
-            var query = _context.Notes
-                .Include(n => n.Subject)
-                .Where(n => n.Status == NoteStatus.Approved);
+    
+            var notes = await _redisService.GetApprovedNotesAsync();
 
             if (subject.HasValue)
-                query = query.Where(n => n.SubjectId == subject.Value);
+                notes = notes.Where(n => n.SubjectName != null && n.Id == subject.Value).ToList();
 
             if (course.HasValue)
-                query = query.Where(n => n.Course == course.Value);
+                notes = notes.Where(n => n.Course == course.Value).ToList();
 
-            var notes = await query
-                .OrderByDescending(n => n.CreatedAt)
-                .ToListAsync();
-
+            notes = notes.OrderByDescending(n => n.CreatedAt).ToList();
+            
             var subjects = await _context.Subjects.ToListAsync();
-    
-            var topAuthors = await _context.Notes
-                .Where(n => n.Status == NoteStatus.Approved)
-                .GroupBy(n => new { n.AuthorId, n.AuthorName })
-                .Select(g => new { AuthorName = g.Key.AuthorName, NoteCount = g.Count() })
-                .OrderByDescending(x => x.NoteCount)
-                .Take(5)
-                .ToListAsync();
+            
+            var topAuthors = await _redisService.GetTopAuthorsAsync();
 
             ViewBag.SelectedSubjectId = subject;
             ViewBag.SelectedCourse = course;
             ViewBag.Subjects = subjects;
             ViewBag.TopAuthors = topAuthors;
-    
+
             return View(notes);
         }
+
 
         public async Task<IActionResult> Details(int id)
         {
@@ -94,6 +89,9 @@ namespace StudyHub.Controllers
 
                 _context.Add(note);
                 await _context.SaveChangesAsync();
+
+                await _redisService.ClearCacheAsync();
+                
                 return RedirectToAction(nameof(MyNotes));
             }
             return View(note);
@@ -121,6 +119,9 @@ namespace StudyHub.Controllers
             }
 
             await _context.SaveChangesAsync();
+            
+            await _redisService.ClearCacheAsync();
+            
             return RedirectToAction(nameof(Details), new { id });
         }
     }

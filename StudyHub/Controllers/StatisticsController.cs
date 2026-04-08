@@ -2,15 +2,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyHub.Data;
+using StudyHub.Services;
 
 [Authorize(Roles = "moderator")]
 public class StatisticsController : Controller
 {
     private readonly StudyHubContext _context;
+    private readonly RedisService _redisService;
 
-    public StatisticsController(StudyHubContext context)
+    public StatisticsController(StudyHubContext context, RedisService redisService)
     {
         _context = context;
+        _redisService = redisService;
     }
 
     public async Task<IActionResult> Index()
@@ -40,8 +43,9 @@ public class StatisticsController : Controller
         return View(allNotes);
     }
 
-    public IActionResult ClearCache()
+    public async Task<IActionResult> ClearCache()
     {
+        await _redisService.ClearCacheAsync();
         return RedirectToAction(nameof(Index));
     }
 }

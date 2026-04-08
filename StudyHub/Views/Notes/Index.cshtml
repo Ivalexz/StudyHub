@@ -1,6 +1,6 @@
 ﻿@using StudyHub.ViewModels
 @using System.Linq
-@model IEnumerable<StudyHub.Models.Note>
+@model IEnumerable<StudyHub.ViewModels.NoteViewModel>
 @{
     ViewData["Title"] = "Конспекти";
     var subjects = ViewBag.Subjects as List<StudyHub.Models.Subject> ?? new();
