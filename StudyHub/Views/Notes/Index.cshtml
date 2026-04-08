@@ -323,6 +323,25 @@
         font-size: .85rem;
     }
     .results-count strong { color: var(--text-secondary); }
+    
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        padding: 0.45rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-ghost:hover {
+        border-color: var(--orange-primary);
+        color: var(--orange-primary);
+        background: var(--orange-glow-sm);
+    }
 </style>
 }
 
@@ -355,7 +374,9 @@
                         <div class="col-md-5">
                             <div class="search-wrap">
                                 <i class="bi bi-search search-icon"></i>
-                                <input type="text" name="search" class="form-control-dark" placeholder="Пошук конспектів..." value="@Context.Request.Query["search"]" />
+                                <input type="text" name="search" class="form-control-dark" 
+                                       placeholder="Пошук конспектів..." 
+                                       value="@Context.Request.Query["search"]" />
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -363,7 +384,7 @@
                                 <option value="">Всі предмети</option>
                                 @foreach (var s in subjects)
                                 {
-                                    <option value="@s.Id" selected="@(selectedSubjectId == s.Id ? "selected" : null)">@s.Name</option>
+                                    <option value="@s.Id" selected="@(selectedSubjectId == s.Id)">@s.Name</option>
                                 }
                             </select>
                         </div>
@@ -372,14 +393,22 @@
                                 <option value="">Курс</option>
                                 @for (int i = 1; i <= 4; i++)
                                 {
-                                    <option value="@i" selected="@(selectedCourse == i ? "selected" : null)">@i курс</option>
+                                    <option value="@i" selected="@(selectedCourse == i)">@i курс</option>
                                 }
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn-orange w-100" style="justify-content:center;">
-                                <i class="bi bi-funnel"></i> Фільтр
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-orange flex-grow-1" style="justify-content:center;">
+                                    <i class="bi bi-funnel"></i> Фільтр
+                                </button>
+                                @if (selectedSubjectId.HasValue || selectedCourse.HasValue || !string.IsNullOrEmpty(Context.Request.Query["search"]))
+                                {
+                                    <a href="@Url.Action("Index")" class="btn-ghost" title="Скинути фільтри">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -417,14 +446,16 @@
                                 <div class="note-card">
                                     <div class="d-flex flex-wrap gap-2 mb-1">
                                         <span class="note-subject-chip">
-                                            <i class="bi bi-bookmark-fill"></i> @note.Subject?.Name
+                                            <i class="bi bi-bookmark-fill"></i> @(note.SubjectName ?? "Без предмету")
                                         </span>
                                         <span class="course-chip">
                                             <i class="bi bi-mortarboard"></i> @note.Course курс
                                         </span>
                                     </div>
                                     <div class="note-title">@note.Title</div>
-                                    <div class="note-preview">@(note.Content.Length > 150 ? note.Content.Substring(0, 150) + "..." : note.Content)</div>
+                                    <div class="note-preview">
+                                        @(note.Content?.Length > 150 ? note.Content.Substring(0, 150) + "..." : note.Content)
+                                    </div>
                                     <div class="note-footer">
                                         <div class="note-author">
                                             <div class="note-author-avatar">
@@ -493,27 +524,28 @@
                 }
             </div>
 
-            <!-- Subjects -->
+            <!-- Subjects sidebar -->
             <div class="sidebar-widget">
                 <div class="widget-title"><i class="bi bi-tag-fill"></i> Предмети</div>
-                <a asp-action="Index" class="subject-filter-item @(selectedSubjectId == null ? "active" : "")">
+                <a asp-action="Index" asp-route-subject="" asp-route-course="@selectedCourse" 
+                   class="subject-filter-item @(!selectedSubjectId.HasValue ? "active" : "")">
                     <span><i class="bi bi-grid me-1"></i> Всі предмети</span>
                 </a>
                 @foreach (var s in subjects)
                 {
-                    <a asp-action="Index" asp-route-subject="@s.Id" 
+                    <a asp-action="Index" asp-route-subject="@s.Id" asp-route-course="@selectedCourse" 
                        class="subject-filter-item @(selectedSubjectId == s.Id ? "active" : "")">
                         <span>@s.Name</span>
                     </a>
                 }
             </div>
 
-            <!-- Courses -->
+            <!-- Courses sidebar -->
             <div class="sidebar-widget">
                 <div class="widget-title"><i class="bi bi-mortarboard-fill"></i> По курсах</div>
                 @for (int c = 1; c <= 4; c++)
                 {
-                    <a asp-action="Index" asp-route-course="@c" 
+                    <a asp-action="Index" asp-route-course="@c" asp-route-subject="@selectedSubjectId" 
                        class="subject-filter-item @(selectedCourse == c ? "active" : "")">
                         <span>@c курс</span>
                     </a>
