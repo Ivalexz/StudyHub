@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 using StudyHub.Services;
 using StudyHub.ViewModels;
 
@@ -11,6 +13,15 @@ namespace StudyHub.Controllers
         public HomeController(RedisService redisService)
         {
             _redisService = redisService;
+        }
+        
+        [Authorize]
+        public IActionResult Login()
+        {
+            if (User.IsInRole("student"))
+                return RedirectToAction("MyNotes", "Notes");
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Index()
@@ -36,6 +47,15 @@ namespace StudyHub.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        public IActionResult Logout()
+        {
+            return SignOut(
+                new AuthenticationProperties { RedirectUri = "/" },
+                "Cookies",
+                "OpenIdConnect"
+            );
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

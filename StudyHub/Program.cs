@@ -19,7 +19,10 @@ builder.Services.AddAuthentication(options =>
         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
-    .AddCookie()
+    .AddCookie(options =>
+    {
+        options.AccessDeniedPath = "/";
+    })
     .AddOpenIdConnect(options =>
     {
         options.Authority = "http://localhost:8080/realms/studyhub";
@@ -27,11 +30,15 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = clientSecret;
         options.ResponseType = "code";
         options.SaveTokens = true;
+        options.RequireHttpsMetadata = false;
+        options.CallbackPath = "/signin-oidc";
+        options.GetClaimsFromUserInfoEndpoint = true;
+        
+        options.Scope.Clear();
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("email");
-        options.RequireHttpsMetadata = false;
-        options.GetClaimsFromUserInfoEndpoint = true;
+        options.Scope.Add("roles");
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
